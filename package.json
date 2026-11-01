@@ -2,23 +2,18 @@
   "name": "msec-college-website",
   "version": "1.0.0",
   "private": true,
+  "description": "Meenakshi Sundararajan Engineering College — Pure TypeScript Architecture",
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "build:ts": "tsc -p typescript/tsconfig.json"
+    "build": "tsc",
+    "watch": "tsc -w",
+    "serve": "npx serve ."
   },
   "dependencies": {
-    "lenis": "^1.1.18",
-    "next": "^15.1.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "lenis": "^1.1.18"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
     "typescript": "^5.7.0"
   }
 }

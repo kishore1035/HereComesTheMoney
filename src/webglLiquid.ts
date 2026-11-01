@@ -1,5 +1,5 @@
-import { MediaItem, WebGLUniforms } from './types';
-import { TEXTURE_SIZES } from './proceduralArt';
+import { MediaItem, UniformLocations, Dimension } from './types.js';
+import { BLUEPRINT_SLOTS } from './canvasBlueprint.js';
 
 export const VERTEX_SHADER = `
 attribute vec2 p;
@@ -32,25 +32,25 @@ void main() {
   float ia = uImg.x / uImg.y;
   vec2 s = ra > ia ? vec2(1.0, ia / ra) : vec2(ra / ia, 1.0);
   vec2 t = (uv - 0.5) * s;
-  float zoom = mix(0.62, 0.86, uReveal) - 0.05 * uHover;
+  float zoom = mix(0.70, 0.90, uReveal) - 0.03 * uHover;
   t *= zoom;
-  t.y += uPar * 0.06;
+  t.y += uPar * 0.05;
 
   vec2 d = uv - uMouse;
   d.x *= ra;
   float dist = length(d);
-  float wave = sin(dist * 26.0 - uTime * 3.2) * exp(-dist * 4.5) * uHover;
+  float wave = sin(dist * 24.0 - uTime * 3.0) * exp(-dist * 4.2) * uHover;
   vec2 dir = d / (dist + 1e-4);
-  t += vec2(dir.x / ra, dir.y) * wave * 0.016;
-  t -= vec2(d.x / ra, d.y) * exp(-dist * dist * 7.0) * 0.11 * uHover;
-  t.x += sin(uv.y * 10.0 + uTime) * 0.004 * abs(uVel);
+  t += vec2(dir.x / ra, dir.y) * wave * 0.012;
+  t -= vec2(d.x / ra, d.y) * exp(-dist * dist * 6.5) * 0.08 * uHover;
+  t.x += sin(uv.y * 8.0 + uTime) * 0.003 * abs(uVel);
   t += 0.5;
 
-  float sh = 0.006 * uHover + min(abs(uVel) * 0.003, 0.01);
-  vec3 c;
-  c.r = texture2D(uTex, t + vec2(sh, 0.0)).r;
-  c.g = texture2D(uTex, t).g;
-  c.b = texture2D(uTex, t - vec2(sh, 0.0)).b;
+  // Crisp monochrome blueprint sampling without chromatic aberration
+  vec3 c = texture2D(uTex, t).rgb;
+
+  // Subtle interactive wave illumination
+  c += vec3(0.08, 0.08, 0.07) * wave;
 
   float lip = smoothstep(edge - 0.02, edge, uv.y) * step(uReveal, 0.999);
   c = mix(c, vec3(0.93, 0.90, 0.85), lip);
@@ -63,7 +63,7 @@ export class WebGLLiquidRenderer {
   private gl: WebGLRenderingContext | null = null;
   private prog: WebGLProgram | null = null;
   private buffer: WebGLBuffer | null = null;
-  private uniforms: WebGLUniforms = {
+  private uniforms: UniformLocations = {
     uTex: null,
     uSize: null,
     uImg: null,
@@ -99,45 +99,28 @@ export class WebGLLiquidRenderer {
   private initGL(): void {
     const gl = this.canvas.getContext('webgl', {
       alpha: true,
-      antialias: false,
-      premultipliedAlpha: true,
+      antialias: true,
+      premultipliedAlpha: false,
+      powerPreference: 'high-performance',
     });
-    if (!gl) {
-      console.warn('WebGL not supported');
-      this.isOk = false;
-      return;
-    }
+    if (!gl) return;
     this.gl = gl;
 
     try {
       const vs = this.compileShader(gl.VERTEX_SHADER, VERTEX_SHADER);
       const fs = this.compileShader(gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
-
       const prog = gl.createProgram();
-      if (!prog) throw new Error('Failed to create WebGL program');
+      if (!prog) throw new Error('Failed to create program');
+
       gl.attachShader(prog, vs);
       gl.attachShader(prog, fs);
       gl.linkProgram(prog);
 
       if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-        throw new Error(`WebGL program linking error: ${gl.getShaderInfoLog(prog)}`);
+        throw new Error(`Program link error: ${gl.getProgramInfoLog(prog)}`);
       }
-
       this.prog = prog;
       gl.useProgram(prog);
-
-      const buffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-        gl.STATIC_DRAW
-      );
-      this.buffer = buffer;
-
-      const loc = gl.getAttribLocation(prog, 'p');
-      gl.enableVertexAttribArray(loc);
-      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
       this.uniforms = {
         uTex: gl.getUniformLocation(prog, 'uTex'),
@@ -151,31 +134,34 @@ export class WebGLLiquidRenderer {
         uVel: gl.getUniformLocation(prog, 'uVel'),
       };
 
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      gl.enable(gl.SCISSOR_TEST);
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+        gl.STATIC_DRAW
+      );
+      this.buffer = buf;
+
+      const pLoc = gl.getAttribLocation(prog, 'p');
+      gl.enableVertexAttribArray(pLoc);
+      gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0);
+
       this.isOk = true;
-    } catch (e) {
-      console.warn('WebGL initialization failed, falling back:', e);
+    } catch {
       this.isOk = false;
     }
   }
 
   public loadTextures(canvases: HTMLCanvasElement[]): WebGLTexture[] {
     const gl = this.gl;
-    if (!gl || !this.isOk) return [];
+    if (!gl) return [];
 
-    this.glTexList = canvases.map((canvas) => {
-      const tex = gl.createTexture();
-      if (!tex) throw new Error('Failed to create texture');
+    this.glTexList = canvases.map((c) => {
+      const tex = gl.createTexture()!;
       gl.bindTexture(gl.TEXTURE_2D, tex);
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        canvas
-      );
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -186,70 +172,61 @@ export class WebGLLiquidRenderer {
     return this.glTexList;
   }
 
-  public updateTexture(index: number, canvas: HTMLCanvasElement): void {
+  public updateTexture(idx: number, canvas: HTMLCanvasElement): void {
     const gl = this.gl;
-    if (!gl || !this.isOk || !this.glTexList[index]) return;
-    gl.bindTexture(gl.TEXTURE_2D, this.glTexList[index]);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      canvas
-    );
+    if (!gl || !this.glTexList[idx]) return;
+    gl.bindTexture(gl.TEXTURE_2D, this.glTexList[idx]);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
   }
 
-  public render(
-    medias: MediaItem[],
-    time: number,
-    vel: number,
-    dpr: number
-  ): void {
+  public render(medias: MediaItem[], time: number, vel: number, dpr: number): void {
     const gl = this.gl;
     if (!gl || !this.isOk) return;
 
-    const w = this.canvas.width;
-    const h = this.canvas.height;
-    const vh = window.innerHeight;
-
-    gl.viewport(0, 0, w, h);
-    gl.scissor(0, 0, w, h);
+    gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.SCISSOR_TEST);
 
-    gl.uniform1f(this.uniforms.uTime, time);
-    gl.uniform1f(this.uniforms.uVel, vel * 0.05);
+    const vh = window.innerHeight;
 
-    for (const m of medias) {
-      if (!m.glTex) continue;
+    medias.forEach((m) => {
+      if (!m.glTex || m.reveal <= 0.001) return;
+
       const r = m.el.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > vh || r.width === 0 || m.reveal < 0.001) {
-        continue;
-      }
+      if (r.bottom < -40 || r.top > vh + 40) return;
 
-      const vx = Math.round(r.left * dpr);
-      const vy = Math.round((vh - r.bottom) * dpr);
-      const vw = Math.round(r.width * dpr);
-      const vh_box = Math.round(r.height * dpr);
+      const sx = Math.round(r.left * dpr);
+      const sy = Math.round((vh - r.bottom) * dpr);
+      const sw = Math.round(r.width * dpr);
+      const sh = Math.round(r.height * dpr);
 
-      gl.viewport(vx, vy, vw, vh_box);
-      gl.scissor(Math.max(0, vx), Math.max(0, vy), vw, vh_box);
+      gl.viewport(sx, sy, sw, sh);
+      gl.scissor(sx, sy, sw, sh);
 
+      gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, m.glTex);
-      const imgSize = TEXTURE_SIZES[m.tex] || [1000, 1000];
-      gl.uniform2f(this.uniforms.uImg, imgSize[0], imgSize[1]);
+      gl.uniform1i(this.uniforms.uTex, 0);
+
       gl.uniform2f(this.uniforms.uSize, r.width, r.height);
+
+      const dims: Dimension = BLUEPRINT_SLOTS[m.tex]?.dimensions || [1000, 1000];
+      gl.uniform2f(this.uniforms.uImg, dims[0], dims[1]);
+
       gl.uniform2f(this.uniforms.uMouse, m.mx, m.my);
       gl.uniform1f(this.uniforms.uHover, m.hover);
+      gl.uniform1f(this.uniforms.uTime, time);
       gl.uniform1f(this.uniforms.uReveal, m.reveal);
-      gl.uniform1f(
-        this.uniforms.uPar,
-        (r.top + r.height / 2 - vh / 2) / vh
-      );
+
+      const par = (r.top + r.height / 2 - vh / 2) / vh;
+      gl.uniform1f(this.uniforms.uPar, par);
+      gl.uniform1f(this.uniforms.uVel, vel);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    }
+    });
+
+    gl.disable(gl.SCISSOR_TEST);
   }
 
   public destroy(): void {
@@ -258,6 +235,5 @@ export class WebGLLiquidRenderer {
     this.glTexList.forEach((t) => gl.deleteTexture(t));
     if (this.buffer) gl.deleteBuffer(this.buffer);
     if (this.prog) gl.deleteProgram(this.prog);
-    this.isOk = false;
   }
 }

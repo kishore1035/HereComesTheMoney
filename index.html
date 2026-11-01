@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MSEC — M. S. Engineering College, Bengaluru (ESTD 2002 · VTU)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><b>View</b></div>
+
+<!-- APPLE LIQUID GLASS NAVIGATION -->
+<header class="nav">
+  <a href="#top" class="wordmark" aria-label="MSEC, home">
+    MSEC<sup>ESTD 2002 · VTU · BENGALURU</sup>
+  </a>
+  <ul>
+    <li><a href="#about" class="cur">About</a></li>
+    <li><a href="#programmes">Departments</a></li>
+    <li><a href="#campus">Campus</a></li>
+    <li><a href="#placements">Placements</a></li>
+    <li><a href="#admissions">Admissions</a></li>
+  </ul>
+  <div class="meta">
+    <span class="clock" id="clock">Bengaluru — IST</span>
+    <button class="menu-btn" aria-expanded="false" aria-controls="overlay">Menu <i></i></button>
+  </div>
+</header>
+
+<!-- OVERLAY CURTAIN MENU -->
+<nav class="overlay" id="overlay" aria-label="Main Navigation">
+  <ol>
+    <li><a href="#about"><span>01</span>About MSEC</a></li>
+    <li><a href="#programmes"><span>02</span>Engineering Programmes</a></li>
+    <li><a href="#campus"><span>03</span>25-Acre Campus</a></li>
+    <li><a href="#placements"><span>04</span>Training &amp; Placements</a></li>
+    <li><a href="#admissions"><span>05</span>Admissions 2026</a></li>
+  </ol>
+  <div class="foot mono">
+    <span>principal@msec.ac.in</span>
+    <span>+91 80 4121 5454</span>
+    <span>KCET: E127 · COMEDK: E076</span>
+  </div>
+</nav>
+
+<main id="top">
+  <!-- SECTION: HERO -->
+  <section class="hero">
+    <div class="hero-media" data-speed="-0.16">
+      <div class="media" data-tex="7" role="img" aria-label="Campus Blueprint: 25-Acre Bengaluru Airport Campus elevations">
+        <span class="tag">Airport Campus // 07</span>
+        <span class="tag r">3:4 · CAD</span>
+      </div>
+    </div>
+
+    <h1 aria-label="Engineering minds since 2002.">
+      <span class="ln" data-speed="0.06" aria-hidden="true">
+        <span class="ch">E</span><span class="ch">n</span><span class="ch">g</span><span class="ch">i</span><span class="ch">n</span><span class="ch">e</span><span class="ch">e</span><span class="ch">r</span><span class="ch">i</span><span class="ch">n</span><span class="ch">g</span>
+      </span>
+      <span class="ln" data-speed="0.12" aria-hidden="true">
+        <span class="ch">m</span><span class="ch">i</span><span class="ch">n</span><span class="ch">d</span><span class="ch">s</span> <span class="ch">s</span><span class="ch">i</span><span class="ch">n</span><span class="ch">c</span><span class="ch">e</span>
+      </span>
+      <span class="ln it" data-speed="0.2" aria-hidden="true">
+        <span class="ch">2</span><span class="ch">0</span><span class="ch">0</span><span class="ch">2</span><span class="ch">.</span>
+      </span>
+    </h1>
+
+    <div class="grid hero-foot">
+      <div class="col wide fade">
+        <span class="skeleton-badge">M.S. Engineering College // VTU Affiliated</span>
+        <div style="margin-top: 10px;">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-3-4 sm"></div>
+        </div>
+      </div>
+      <div class="col fade">
+        <span class="mono">Founded By</span>
+        <p style="margin-top: 4px; font-size: 14px; color: var(--ink);">M.S. Educational Trust</p>
+      </div>
+      <div class="col fade">
+        <span class="mono">Counselling Codes</span>
+        <p style="margin-top: 4px; font-size: 14px; color: var(--accent);">KCET: E127 · COMEDK: E076</p>
+      </div>
+      <div class="scroll fade">
+        <span class="mono">Scroll to explore</span>
+        <span class="bar"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: STATEMENT -->
+  <section class="statement" id="about">
+    <div class="grid">
+      <div class="mono-eyebrow">
+        <span class="mono">(Vision &amp; Institutional Ethos)</span>
+      </div>
+      <p class="reveal-words">
+        <span class="w">To</span> <span class="w">be</span> <span class="w">a</span> <span class="w">premier</span> <span class="w">engineering</span> <span class="w">institution</span> <span class="w">recognized</span> <span class="w">globally</span> <span class="w">for</span> <span class="w">excellence</span> <span class="w">in</span> <span class="w">education,</span> <span class="w">research,</span> <span class="w">and</span> <span class="w">innovation,</span> <span class="w">shaping</span> <span class="w">future</span> <span class="w">leaders</span> <span class="w">who</span> <span class="w">drive</span> <span class="w">technological</span> <span class="w">progress.</span>
+      </p>
+      <div class="stats-grid">
+        <div class="stat-item fade">
+          <span class="big-n">2002</span>
+          <span class="mono">Year Established</span>
+        </div>
+        <div class="stat-item fade">
+          <span class="big-n">25</span>
+          <span class="mono">Acre Green Campus</span>
+        </div>
+        <div class="stat-item fade">
+          <span class="big-n">E127</span>
+          <span class="mono">KCET Counselling Code</span>
+        </div>
+        <div class="stat-item fade">
+          <span class="big-n">E076</span>
+          <span class="mono">COMEDK Code</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: FEATURED DEPARTMENT -->
+  <section class="featured" id="programmes">
+    <div class="label-row">
+      <span class="mono">Department — 01/07 · Emerging Technology</span>
+      <span class="mono">B.E. · 4 Years · VTU</span>
+    </div>
+
+    <h2 aria-label="Artificial Intelligence and Machine Learning">
+      <span class="ln" data-speed="0.05" aria-hidden="true">AI &amp; Machine</span>
+      <span class="ln it" data-speed="-0.05" aria-hidden="true">Learning</span>
+    </h2>
+
+    <div class="wrap">
+      <a href="#programmes" class="card featured-card" data-cursor="Explore">
+        <div class="media" data-tex="0" role="img" aria-label="CAD Blueprint: Neural constellation topology">
+          <span class="tag">Dept. of AI &amp; ML</span>
+          <span class="tag r">16:9 · CAD_00</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="grid">
+      <div class="info-grid">
+        <div class="info-item fade">
+          <span class="mono">Degree</span>
+          <span class="v">B.E. (VTU)</span>
+        </div>
+        <div class="info-item fade">
+          <span class="mono">Duration</span>
+          <span class="v">4 Years</span>
+        </div>
+        <div class="info-item fade">
+          <span class="mono">Codes</span>
+          <span class="v">E127 / E076</span>
+        </div>
+        <div class="desc-col fade">
+          <div class="skeleton-line w-full"></div>
+          <div class="skeleton-line w-full"></div>
+          <div class="skeleton-line w-2-3"></div>
+        </div>
+        <div class="action-col fade">
+          <span class="mono" style="color: var(--ink);">Explore Syllabus →</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE TICKER -->
+  <div class="marquee" aria-hidden="true">
+    <div class="track">
+      <span>M. S. Engineering College</span>
+      <span class="dim">VTU Belagavi</span>
+      <span>AICTE New Delhi</span>
+      <span class="dim">NAAC Accredited</span>
+      <span>25-Acre Bengaluru Campus</span>
+      <span class="dim">KCET: E127</span>
+      <span>COMEDK: E076</span>
+      <span class="dim">ESTD 2002</span>
+    </div>
+  </div>
+
+  <!-- SECTION: PROGRAMMES GRID -->
+  <section class="work">
+    <div class="grid">
+      <!-- Card 1: Computer Science & Engineering -->
+      <a href="#programmes" class="card c1 fade" data-cursor="Explore">
+        <div class="media" data-tex="1" role="img" aria-label="CAD Blueprint: Computer Science code bus">
+          <span class="tag">B.E. CSE</span>
+          <span class="tag r">4:3 · CAD_01</span>
+        </div>
+        <div class="cap">
+          <h3><span>Computer Science &amp; Engineering</span></h3>
+          <span class="arr">→</span>
+        </div>
+        <div style="margin: 12px 0 6px;">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-1-2 sm"></div>
+        </div>
+        <div class="row2">
+          <span class="mono">B.E. · VTU</span>
+          <span class="mono">Since 2002 · E127</span>
+        </div>
+      </a>
+
+      <!-- Card 2: Electronics & Communication Engineering -->
+      <a href="#programmes" class="card c2 fade" data-cursor="Explore">
+        <div class="media" data-tex="2" role="img" aria-label="CAD Blueprint: Electronics signal carrier">
+          <span class="tag">B.E. ECE</span>
+          <span class="tag r">4:5 · CAD_02</span>
+        </div>
+        <div class="cap">
+          <h3><span>Electronics &amp; Communication</span></h3>
+          <span class="arr">→</span>
+        </div>
+        <div style="margin: 12px 0 6px;">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-2-3 sm"></div>
+        </div>
+        <div class="row2">
+          <span class="mono">B.E. · VTU</span>
+          <span class="mono">Since 2002 · E127</span>
+        </div>
+      </a>
+
+      <!-- Card 3: Information Science & Engineering -->
+      <a href="#programmes" class="card c3 fade" data-cursor="Explore">
+        <div class="media" data-tex="3" role="img" aria-label="CAD Blueprint: Information Science network routing">
+          <span class="tag">B.E. ISE</span>
+          <span class="tag r">4:5 · CAD_03</span>
+        </div>
+        <div class="cap">
+          <h3><span>Information Science &amp; Engineering</span></h3>
+          <span class="arr">→</span>
+        </div>
+        <div style="margin: 12px 0 6px;">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-1-2 sm"></div>
+        </div>
+        <div class="row2">
+          <span class="mono">B.E. · VTU</span>
+          <span class="mono">Since 2002 · E127</span>
+        </div>
+      </a>
+
+      <!-- Card 4: CSE — Cyber Security & Data Science -->
+      <a href="#programmes" class="card c4 fade" data-cursor="Explore">
+        <div class="media" data-tex="6" role="img" aria-label="CAD Blueprint: Cyber security & Data science network">
+          <span class="tag">Specialized B.E.</span>
+          <span class="tag r">1:1 · CAD_06</span>
+        </div>
+        <div class="cap">
+          <h3><span>Cyber Security &amp; Data Science</span></h3>
+          <span class="arr">→</span>
+        </div>
+        <div style="margin: 12px 0 6px;">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-3-4 sm"></div>
+        </div>
+        <div class="row2">
+          <span class="mono">B.E. CSE Specialization</span>
+          <span class="mono">VTU Affiliated</span>
+        </div>
+      </a>
+
+      <!-- Card 5: Mechanical Engineering -->
+      <a href="#programmes" class="card c5 fade" data-cursor="Explore">
+        <div class="media" data-tex="4" role="img" aria-label="CAD Blueprint: Mechanical vector pitch circles">
+          <span class="tag">B.E. ME</span>
+          <span class="tag r">7:5 · CAD_04</span>
+        </div>
+        <div class="cap">
+          <h3><span>Mechanical Engineering</span></h3>
+          <span class="arr">→</span>
+        </div>
+        <div style="margin: 12px 0 6px;">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-1-3 sm"></div>
+        </div>
+        <div class="row2">
+          <span class="mono">B.E. · VTU</span>
+          <span class="mono">Since 2002 · E127</span>
+        </div>
+      </a>
+
+      <!-- Card 6: Civil Engineering -->
+      <a href="#programmes" class="card c6 fade" data-cursor="Explore">
+        <div class="media" data-tex="5" role="img" aria-label="CAD Blueprint: Civil truss triangulation">
+          <span class="tag">B.E. CE</span>
+          <span class="tag r">4:5 · CAD_05</span>
+        </div>
+        <div class="cap">
+          <h3><span>Civil Engineering</span></h3>
+          <span class="arr">→</span>
+        </div>
+        <div style="margin: 12px 0 6px;">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-1-2 sm"></div>
+        </div>
+        <div class="row2">
+          <span class="mono">B.E. · VTU</span>
+          <span class="mono">Since 2002 · E127</span>
+        </div>
+      </a>
+
+      <div class="more fade">
+        <span class="mono">VTU Belagavi Syllabus &amp; Seat Allotment</span>
+        <a class="mono" href="#admissions" style="color: var(--ink);">Apply for Admissions 2026 →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: CAMPUS INFRASTRUCTURE -->
+  <section class="services" id="campus">
+    <div class="label-row">
+      <span class="mono">(Campus Facilities)</span>
+      <span class="mono">25-Acre Green Campus · Sadahalli, Bengaluru</span>
+    </div>
+    <div class="grid">
+      <h2 class="intro serif fade">
+        A sprawling 25-acre campus, <span class="it">engineered for</span><br>innovation &amp; research.
+      </h2>
+    </div>
+
+    <!-- Facility 1 -->
+    <div class="svc-item" data-cursor="Tour">
+      <div class="grid">
+        <span class="mono n">01</span>
+        <h4>R&amp;D Centers &amp; Department Labs</h4>
+        <div class="desc-wrap">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-3-4 sm"></div>
+        </div>
+        <span class="mono tags">IoT · Nano/MEMS · Renewable Energy</span>
+      </div>
+    </div>
+
+    <!-- Facility 2 -->
+    <div class="svc-item" data-cursor="Tour">
+      <div class="grid">
+        <span class="mono n">02</span>
+        <h4>Central Digital Library</h4>
+        <div class="desc-wrap">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-2-3 sm"></div>
+        </div>
+        <span class="mono tags">OPAC · IEEE · E-Resources</span>
+      </div>
+    </div>
+
+    <!-- Facility 3 -->
+    <div class="svc-item" data-cursor="Tour">
+      <div class="grid">
+        <span class="mono n">03</span>
+        <h4>300+ Seater Air-Conditioned Auditorium</h4>
+        <div class="desc-wrap">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-1-2 sm"></div>
+        </div>
+        <span class="mono tags">Symposia · Nakshatra Fest</span>
+      </div>
+    </div>
+
+    <!-- Facility 4 -->
+    <div class="svc-item" data-cursor="Tour">
+      <div class="grid">
+        <span class="mono n">04</span>
+        <h4>Bengaluru-Wide Transit Fleet &amp; Hostels</h4>
+        <div class="desc-wrap">
+          <div class="skeleton-line w-full sm"></div>
+          <div class="skeleton-line w-3-4 sm"></div>
+        </div>
+        <span class="mono tags">800+ Students · 100+ Staff Buses</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: PLACEMENTS -->
+  <section class="clients" id="placements">
+    <div class="label-row">
+      <span class="mono">(Training &amp; Placements)</span>
+      <span class="mono">Industry Institute Partnership Cell (IIPC)</span>
+    </div>
+
+    <div class="logos-grid">
+      <div class="logo-cell">TCS</div>
+      <div class="logo-cell">INFOSYS</div>
+      <div class="logo-cell">WIPRO</div>
+      <div class="logo-cell">COGNIZANT</div>
+      <div class="logo-cell">CAPGEMINI</div>
+      <div class="logo-cell">ACCENTURE</div>
+      <div class="logo-cell">AMAZON</div>
+      <div class="logo-cell">IBM</div>
+      <div class="logo-cell">TECH MAHINDRA</div>
+      <div class="logo-cell">L&amp;T</div>
+    </div>
+
+    <div class="grid quote-wrap">
+      <blockquote class="fade">
+        "MSEC Placement Cell imparts emerging skills, Centers of Excellence, and soft skills training connecting students to tier-1 global technology corporations."
+      </blockquote>
+      <div class="who fade">
+        <span class="mono" style="color: var(--ink);">Director Training &amp; Placement</span>
+        <span class="mono">Mr. Valliappan J · +91 9920212389</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: ADMISSIONS & CONTACT -->
+  <section class="contact" id="admissions">
+    <div class="label-row" style="border-top:0;padding-top:0">
+      <span class="mono">(Admissions 2026 - 2027)</span>
+      <span class="mono">VTU &amp; Government of Karnataka Guidelines</span>
+    </div>
+    <h2 class="big" aria-label="Begin your engineering journey at MSEC.">
+      <span class="ln" data-speed="0.04" aria-hidden="true">Begin your</span>
+      <span class="ln it" data-speed="-0.06" aria-hidden="true">journey here.</span>
+    </h2>
+
+    <div class="grid">
+      <div class="contact-grid">
+        <a class="contact-mail" href="mailto:principal@msec.ac.in">
+          principal@msec.ac.in <span class="arr">→</span>
+        </a>
+        <div class="contact-addr">
+          <span class="mono">Campus Coordinates</span>
+          <p style="margin-top: 6px; font-size: 14px; line-height: 1.6;">
+            M. S. Engineering College<br>
+            Navarathna Agrahara, Sadahalli P.O.<br>
+            Off Bengaluru International Airport<br>
+            Bengaluru – 562 110, Karnataka, INDIA
+          </p>
+        </div>
+        <div class="contact-tnea">
+          <span class="mono">Admissions &amp; Counselling Desk</span>
+          <p style="margin-top: 6px; font-size: 14px; line-height: 1.6;">
+            +91 80 4121 5454 / +91 80 4131 5454<br>
+            Principal: +91 9591510211 (Dr. N. Ranapratap Reddy)<br>
+            Admissions: +91 9342842666 (Mr. Kafeel)<br>
+            <span style="color: var(--accent);">KCET: E127 · COMEDK: E076</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span class="mono">© 2026 M. S. Engineering College (MSEC)</span>
+      <span class="mono">M.S. Educational Trust · VTU Affiliated · AICTE Approved</span>
+      <button class="totop mono" id="totop">Back to top ↑</button>
+    </footer>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script type="module" src="./dist/main.js"></script>
+</body>
+</html>
