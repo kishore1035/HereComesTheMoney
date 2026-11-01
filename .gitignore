@@ -14,5 +14,5 @@ out/
 .DS_Store
 Thumbs.db
 
-# Zip archives (excluded per request)
-*.zip
+# Zip archives (keep msec-drive-images.zip)
+# *.zip
