@@ -999,3 +999,126 @@ footer {
   .quote-wrap blockquote, .quote-wrap .who { grid-column: span 12; }
   .contact-mail, .contact-addr, .contact-tnea { grid-column: span 12; }
 }
+
+
+/* ---------- FOUNDER TRIBUTE & CAMPUS SHOWCASE ---------- */
+.founder-card {
+  grid-column: span 12;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--pad);
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  padding: 24px;
+  margin-bottom: 48px;
+  align-items: center;
+  transition: border-color 0.4s var(--ease);
+}
+
+.founder-card:hover {
+  border-color: var(--line-strong);
+}
+
+.founder-media {
+  grid-column: span 4;
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid rgba(237, 230, 216, 0.12);
+  background: #0f0e0c;
+}
+
+.founder-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: contrast(105%);
+  transition: transform 0.6s var(--ease);
+}
+
+.founder-card:hover .founder-media img {
+  transform: scale(1.03);
+}
+
+.founder-info {
+  grid-column: span 8;
+  padding: 8px 16px;
+}
+
+.founder-info h3 {
+  font-family: var(--serif);
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 1.1;
+  margin: 12px 0 16px;
+  letter-spacing: -0.015em;
+}
+
+.founder-info p {
+  color: var(--mute);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 640px;
+  margin-bottom: 24px;
+}
+
+.founder-meta {
+  display: flex;
+  gap: 28px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.campus-showcase {
+  margin-top: 48px;
+}
+
+.showcase-card {
+  grid-column: span 12;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--pad);
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  padding: 20px;
+  align-items: center;
+}
+
+.showcase-img {
+  grid-column: span 5;
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #0f0e0c;
+}
+
+.showcase-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.showcase-cap {
+  grid-column: span 7;
+  padding: 12px 20px;
+}
+
+.showcase-cap h4 {
+  font-family: var(--serif);
+  font-size: clamp(28px, 3.2vw, 44px);
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+
+.showcase-cap p {
+  color: var(--mute);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .founder-media, .founder-info { grid-column: span 12; }
+  .showcase-img, .showcase-cap { grid-column: span 12; }
+}

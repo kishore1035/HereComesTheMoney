@@ -17,6 +17,20 @@ import { WebGLLiquidRenderer } from './webglLiquid.js';
     let glTexList = [];
     if (renderer.isOk) {
         glTexList = renderer.loadTextures(textureCanvases);
+        // Asynchronously bind authentic campus photo to texture 7 (Hero slot)
+        const campusImg = new Image();
+        campusImg.src = './images/founder-statue.jpg';
+        campusImg.onload = () => {
+            const c = textureCanvases[7];
+            const ctx = c ? c.getContext('2d') : null;
+            if (c && ctx) {
+                ctx.save();
+                ctx.globalAlpha = 0.55;
+                ctx.drawImage(campusImg, 0, 0, c.width, c.height);
+                ctx.restore();
+                renderer.updateTexture(7, c);
+            }
+        };
     }
     // 4. Media elements mapping
     const mediaElements = Array.from(document.querySelectorAll('.media'));
