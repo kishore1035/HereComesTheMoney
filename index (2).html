@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MSEC — Meenakshi Sundararajan Engineering College</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0d0b; --bg2:#151411; --ink:#ede6d8; --mute:#8a8377; --dim:#5a554d;
+  --line:#2a2824; --accent:#c8553d;
+  --serif:"Instrument Serif", "Times New Roman", serif;
+  --sans:"Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+  --pad:clamp(18px,3vw,48px);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:300;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--accent);color:var(--bg)}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);line-height:1.6}
+.serif{font-family:var(--serif);font-weight:400}
+em,.it{font-style:italic}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);column-gap:var(--pad);padding:0 var(--pad)}
+
+/* grain */
+.grain{position:fixed;inset:-50%;z-index:90;pointer-events:none;opacity:.07;background-image:var(--noise);animation:grain 1s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-1%,3%)}100%{transform:translate(0,0)}}
+
+/* gl canvas */
+#gl{position:fixed;inset:0;width:100vw;height:100vh;z-index:1;pointer-events:none}
+
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:22px var(--pad);mix-blend-mode:difference;color:#ede6d8}
+.wordmark{font-family:var(--serif);font-size:26px;letter-spacing:-.01em;line-height:1}
+.wordmark sup{font-family:var(--mono);font-size:9px;letter-spacing:.1em;vertical-align:top;margin-left:6px;text-transform:uppercase}
+.nav ul{display:flex;gap:34px;list-style:none}
+.nav ul a{font-size:13px;position:relative;padding:4px 0}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .6s var(--ease)}
+.nav ul a:hover::after,.nav ul a.cur::after{transform:scaleX(1);transform-origin:left}
+.nav .meta{display:flex;gap:28px;align-items:center}
+.nav .mono{color:inherit;opacity:.65}
+.menu-btn{background:none;border:0;color:inherit;font:inherit;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.menu-btn i{display:inline-block;width:22px;height:8px;position:relative}
+.menu-btn i::before,.menu-btn i::after{content:"";position:absolute;left:0;right:0;height:1px;background:currentColor;transition:transform .6s var(--ease)}
+.menu-btn i::before{top:0}.menu-btn i::after{bottom:0}
+body.menu-open .menu-btn i::before{transform:translateY(3.5px) rotate(45deg)}
+body.menu-open .menu-btn i::after{transform:translateY(-3.5px) rotate(-45deg)}
+
+/* overlay menu */
+.overlay{position:fixed;inset:0;z-index:45;background:var(--bg2);clip-path:inset(0 0 100% 0);transition:clip-path 1s var(--ease);display:flex;flex-direction:column;justify-content:flex-end;padding:var(--pad);padding-bottom:calc(var(--pad) + 10px)}
+body.menu-open .overlay{clip-path:inset(0 0 0 0)}
+.overlay ol{list-style:none;counter-reset:m}
+.overlay li{overflow:hidden;border-top:1px solid var(--line)}
+.overlay li a{display:flex;align-items:baseline;gap:24px;font-family:var(--serif);font-size:clamp(56px,10vw,150px);line-height:1;padding:.08em 0;transform:translateY(105%);transition:transform 1s var(--ease),color .4s, padding-left .6s var(--ease)}
+.overlay li a span{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mute)}
+.overlay li a:hover{color:var(--accent);padding-left:.25em}
+body.menu-open .overlay li a{transform:none}
+body.menu-open .overlay li:nth-child(2) a{transition-delay:.06s}
+body.menu-open .overlay li:nth-child(3) a{transition-delay:.12s}
+body.menu-open .overlay li:nth-child(4) a{transition-delay:.18s}
+.overlay .foot{display:flex;justify-content:space-between;margin-top:36px;opacity:0;transition:opacity .6s .3s}
+body.menu-open .overlay .foot{opacity:1}
+
+/* hero */
+.hero{position:relative;min-height:100vh;padding-top:22vh;padding-bottom:8vh}
+.hero h1{position:relative;z-index:3;font-family:var(--serif);font-weight:400;font-size:clamp(64px,14.2vw,236px);line-height:.86;letter-spacing:-.035em;padding:0 var(--pad);mix-blend-mode:difference;color:#ede6d8}
+.hero h1 .ln{display:block;overflow:hidden;padding-bottom:.04em}
+.hero h1 .ln:nth-child(2){padding-left:16vw}
+.hero h1 .ln:nth-child(3){padding-left:4vw}
+.ch{display:inline-block;transform:translateY(110%) rotate(6deg);transform-origin:left bottom;transition:transform 1.4s var(--ease)}
+body.loaded .ch{transform:none}
+.hero-media{position:absolute;z-index:0;right:calc(var(--pad) + 4vw);top:18vh;width:clamp(220px,25vw,420px);aspect-ratio:3/4}
+.hero-media .media{width:100%;height:100%}
+.hero-foot{position:relative;z-index:3;margin-top:9vh;align-items:end}
+.hero-foot .lede{grid-column:1/5;font-size:17px;line-height:1.45;color:var(--ink);max-width:34ch}
+.hero-foot .lede b{font-weight:400}
+.hero-foot .col{grid-column:span 2}
+.hero-foot .scroll{grid-column:11/13;text-align:right;display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.scroll .bar{width:1px;height:46px;background:var(--line);position:relative;overflow:hidden}
+.scroll .bar::after{content:"";position:absolute;left:0;top:0;width:1px;height:40%;background:var(--ink);animation:drip 2.2s var(--ease) infinite}
+@keyframes drip{0%{transform:translateY(-100%)}100%{transform:translateY(260%)}}
+.fade{opacity:0;transform:translateY(24px);transition:opacity 1.2s var(--ease),transform 1.2s var(--ease)}
+.fade.in,body.loaded .hero .fade{opacity:1;transform:none}
+body.loaded .hero .fade{transition-delay:.7s}
+
+/* sections */
+section{position:relative}
+.label-row{display:flex;justify-content:space-between;align-items:baseline;padding:0 var(--pad);margin-bottom:5vh;border-top:1px solid var(--line);padding-top:16px}
+.statement{padding:22vh 0 26vh}
+.statement .mono{grid-column:1/3;padding-top:14px}
+.statement p{grid-column:3/12;font-family:var(--serif);font-size:clamp(34px,4.6vw,76px);line-height:1.04;letter-spacing:-.015em}
+.statement p .w{opacity:.14;transition:opacity .25s linear}
+.statement p .w.on{opacity:1}
+.statement p em{color:var(--accent)}
+.statement .sig{grid-column:9/12;margin-top:8vh;display:flex;gap:40px}
+
+/* media */
+.media{position:relative;width:100%;background:var(--bg2);overflow:hidden;background-size:cover;background-position:center}
+.media .tag{position:absolute;z-index:2;top:14px;left:14px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#ede6d8;mix-blend-mode:difference}
+.media .tag.r{left:auto;right:14px}
+.featured .media .tag.r{top:auto;bottom:14px}
+
+/* featured */
+.featured{padding-bottom:22vh}
+.featured h2{font-family:var(--serif);font-weight:400;font-size:clamp(60px,11vw,190px);line-height:.88;letter-spacing:-.03em;padding:0 var(--pad);margin-bottom:-.32em;position:relative;z-index:3;mix-blend-mode:difference;color:#ede6d8}
+.featured h2 .ln{display:block;overflow:hidden}
+.featured h2 .ln:nth-child(2){text-align:right}
+.featured .wrap{padding:0 var(--pad)}
+.featured .media{aspect-ratio:16/8.4}
+.featured .info{margin-top:28px}
+.featured .info > div{grid-column:span 2}
+.featured .info .desc{grid-column:7/11;font-size:15px;color:var(--ink);max-width:40ch}
+.featured .info .go{grid-column:11/13;text-align:right}
+.info .k{display:block;margin-bottom:6px}
+.info .v{font-size:14px}
+.link{display:inline-flex;align-items:center;gap:10px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:4px;transition:border-color .4s}
+.link:hover{border-color:var(--ink)}
+.link .arr{display:inline-block;transition:transform .6s var(--ease)}
+.link:hover .arr{transform:translateX(5px) rotate(-45deg)}
+
+/* marquee */
+.marquee{overflow:hidden;padding:4vh 0 14vh;white-space:nowrap}
+.marquee .track{display:inline-flex;will-change:transform}
+.marquee span{font-family:var(--serif);font-size:clamp(80px,13vw,220px);line-height:1;letter-spacing:-.03em;padding-right:.35em;color:transparent;-webkit-text-stroke:1px #4a463f}
+.marquee span.f{color:var(--ink);-webkit-text-stroke:0;font-style:italic}
+
+/* work grid */
+.work{padding-bottom:18vh}
+.work .grid{row-gap:16vh;align-items:start}
+.card{display:block;position:relative}
+.card .media{aspect-ratio:4/5}
+.card .cap{display:flex;justify-content:space-between;align-items:baseline;margin-top:18px;gap:20px}
+.card h3{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.2vw,52px);line-height:1;letter-spacing:-.015em}
+.card h3 span{display:inline-block;transition:transform .8s var(--ease)}
+.card .row2{display:flex;justify-content:space-between;margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.card .num{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.1em}
+.card .arr{display:inline-block;font-size:18px;transition:transform .7s var(--ease);color:var(--mute)}
+.card:hover .arr{transform:rotate(-45deg);color:var(--ink)}
+.card:hover h3 span{transform:translateX(.18em)}
+.c1{grid-column:1/8}.c1 .media{aspect-ratio:4/3}
+.c2{grid-column:9/13;margin-top:34vh}
+.c3{grid-column:2/7}
+.c4{grid-column:8/13;margin-top:8vh}.c4 .media{aspect-ratio:1/1}
+.c5{grid-column:1/8}.c5 .media{aspect-ratio:7/5}
+.c6{grid-column:9/13;margin-top:22vh}
+.work .more{grid-column:1/13;display:flex;justify-content:center}
+.stats{margin-top:16vh;row-gap:40px}
+.stats > div{grid-column:span 3;border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:8px}
+.big-n{font-family:var(--serif);font-size:clamp(56px,7vw,120px);line-height:.9;letter-spacing:-.03em}
+.stats > div:nth-child(2) .big-n{color:var(--accent);font-style:italic}
+.note{padding:18px var(--pad) 0}
+.hero h1{font-size:clamp(56px,12.6vw,214px)}
+
+/* services */
+.services{padding-bottom:20vh}
+.services .intro{grid-column:1/13;font-family:var(--serif);font-size:clamp(40px,6vw,100px);line-height:.95;letter-spacing:-.02em;margin-bottom:10vh}
+.services .intro .it{color:var(--mute)}
+.svc{border-top:1px solid var(--line);padding:0 var(--pad)}
+.svc:last-child{border-bottom:1px solid var(--line)}
+.svc .grid{padding:0;align-items:baseline;padding-top:28px;padding-bottom:28px;position:relative}
+.svc .n{grid-column:1/2}
+.svc h4{grid-column:2/7;font-family:var(--serif);font-weight:400;font-size:clamp(34px,4.4vw,72px);line-height:1;letter-spacing:-.02em;transition:transform .8s var(--ease),color .5s}
+.svc p{grid-column:7/10;font-size:14px;color:var(--mute);max-width:36ch;transition:color .5s}
+.svc .tags{grid-column:10/13;text-align:right}
+.svc:hover h4{transform:translateX(.3em);color:var(--accent)}
+.svc:hover p{color:var(--ink)}
+
+/* clients */
+.clients{padding-bottom:20vh}
+.logos{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);margin:0 var(--pad)}
+.logos div{border-bottom:1px solid var(--line);border-right:1px solid var(--line);height:15vh;min-height:110px;display:flex;align-items:center;justify-content:center;color:var(--mute);transition:color .5s,background .5s;font-size:22px}
+.logos div:nth-child(5n){border-right:0}
+.logos div:hover{color:var(--ink);background:var(--bg2)}
+.l1{font-family:var(--serif);font-style:italic;font-size:30px!important}
+.l2{font-family:var(--mono);font-size:14px!important;letter-spacing:.3em}
+.l3{font-weight:500;letter-spacing:-.04em;font-size:26px!important}
+.l4{font-family:var(--serif);letter-spacing:.2em;text-transform:uppercase;font-size:18px!important}
+.l5{font-weight:300;letter-spacing:.5em;text-transform:lowercase;font-size:16px!important}
+.quote{margin-top:16vh}
+.quote blockquote{grid-column:3/11;font-family:var(--serif);font-size:clamp(28px,3.4vw,54px);line-height:1.1;letter-spacing:-.01em}
+.quote blockquote::before{content:"“";display:block;font-size:2.2em;line-height:.6;color:var(--accent)}
+.quote .who{grid-column:3/11;margin-top:36px;display:flex;gap:16px}
+
+/* journal */
+.journal{padding-bottom:20vh}
+.post{display:block;border-top:1px solid var(--line);padding:0 var(--pad);position:relative;overflow:hidden}
+.post:last-child{border-bottom:1px solid var(--line)}
+.post::before{content:"";position:absolute;inset:0;background:var(--ink);transform:scaleY(0);transform-origin:bottom;transition:transform .7s var(--ease)}
+.post:hover::before{transform:scaleY(1)}
+.post .grid{padding:30px 0;align-items:baseline;position:relative;transition:color .5s}
+.post:hover .grid,.post:hover .mono{color:var(--bg)}
+.post .d{grid-column:1/3}
+.post h5{grid-column:3/9;font-family:var(--serif);font-weight:400;font-size:clamp(26px,2.8vw,44px);line-height:1.05}
+.post .c{grid-column:9/11}
+.post .t{grid-column:11/13;text-align:right}
+
+/* contact */
+.contact{padding:10vh 0 0;border-top:1px solid var(--line)}
+.contact .big{display:block;font-family:var(--serif);font-size:clamp(70px,15vw,260px);line-height:.85;letter-spacing:-.04em;padding:0 var(--pad);margin:8vh 0 6vh}
+.contact .big .ln{display:block;overflow:hidden}
+.contact .big .ln:nth-child(2){padding-left:22vw;font-style:italic;color:var(--accent)}
+.contact .mail{grid-column:1/7;font-family:var(--serif);font-size:clamp(28px,3.6vw,58px);line-height:1;border-bottom:1px solid var(--line);padding-bottom:12px;display:flex;justify-content:space-between;align-items:baseline;transition:border-color .5s}
+.contact .mail:hover{border-color:var(--ink)}
+.contact .mail .arr{font-size:.6em;transition:transform .7s var(--ease)}
+.contact .mail:hover .arr{transform:rotate(-45deg)}
+.contact .addr{grid-column:8/10}
+.contact .addr2{grid-column:10/12}
+.contact .addr p,.contact .addr2 p{font-size:14px;margin-top:6px}
+footer{margin-top:20vh;padding:24px var(--pad);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+footer .soc{display:flex;gap:28px}
+footer .soc a{font-size:13px}
+footer .soc a:hover{color:var(--accent)}
+.totop{background:none;border:0;color:inherit;cursor:pointer}
+
+/* cursor */
+.cursor{position:fixed;left:0;top:0;z-index:100;pointer-events:none;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#ede6d8;mix-blend-mode:difference;opacity:0;transition:width .5s var(--ease),height .5s var(--ease),margin .5s var(--ease),opacity .4s}
+.cursor.on{opacity:1}
+.cursor b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:400;font-size:10px;letter-spacing:.14em;color:#0e0d0b;opacity:0;transition:opacity .3s}
+.cursor.big{width:88px;height:88px;margin:-44px 0 0 -44px}
+.cursor.big b{opacity:1}
+@media (hover:none){.cursor{display:none}}
+@media (hover:hover){.card,.svc,.post{cursor:none}}
+
+/* responsive */
+@media (max-width:900px){
+  .nav ul,.nav .meta .mono{display:none}
+  .grid{grid-template-columns:repeat(6,1fr)}
+  .hero{padding-top:18vh}
+  .hero{display:flex;flex-direction:column}
+  .hero h1{order:0}.hero-foot{order:2}
+  .hero-media{order:1;position:relative;top:auto;right:auto;width:56vw;margin:5vh var(--pad) 0 auto}
+  .hero h1 .ln:nth-child(2){padding-left:8vw}
+  .hero-foot{row-gap:20px}
+  .hero-foot .lede{grid-column:1/7}
+  .hero-foot .col{grid-column:span 3}
+  .hero-foot .scroll{display:none}
+  .statement .mono,.statement p,.statement .sig{grid-column:1/7}
+  .featured .info{row-gap:22px}
+  .featured .info > div{grid-column:span 3}
+  .featured .info .desc,.featured .info .go{grid-column:1/7;text-align:left}
+  .c1,.c2,.c3,.c4,.c5,.c6{grid-column:1/7;margin-top:0}
+  .stats > div{grid-column:span 3}
+  .work .grid{row-gap:10vh}.work .more{grid-column:1/7}
+  .services .intro{grid-column:1/7}
+  .svc .n{grid-column:1/7}.svc h4,.svc p,.svc .tags{grid-column:1/7;text-align:left;margin-top:10px}
+  .logos{grid-template-columns:repeat(2,1fr)}
+  .logos div:nth-child(5n){border-right:1px solid var(--line)}
+  .logos div:nth-child(2n){border-right:0}
+  .quote blockquote,.quote .who{grid-column:1/7}
+  .post .d,.post h5,.post .c,.post .t{grid-column:1/7;text-align:left}
+  .post h5{margin:8px 0}
+  .contact .mail,.contact .addr,.contact .addr2{grid-column:1/7}
+  .contact .addr,.contact .addr2{margin-top:30px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01s!important;transition-delay:0s!important}
+}
+</style>
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><b>View</b></div>
+
+<header class="nav">
+  <a href="#top" class="wordmark" aria-label="MSEC, home">MSEC<sup>Est. 2001</sup></a>
+  <ul>
+    <li><a href="#about" class="cur">About</a></li>
+    <li><a href="#programmes">Programmes</a></li>
+    <li><a href="#campus">Campus</a></li>
+    <li><a href="#news">News</a></li>
+    <li><a href="#admissions">Admissions</a></li>
+  </ul>
+  <div class="meta">
+    <span class="mono" id="clock">Chennai —</span>
+    <button class="menu-btn" aria-expanded="false" aria-controls="overlay">Menu <i></i></button>
+  </div>
+</header>
+
+<nav class="overlay" id="overlay" aria-label="Main">
+  <ol>
+    <li><a href="#about"><span>01</span>About</a></li>
+    <li><a href="#programmes"><span>02</span>Programmes</a></li>
+    <li><a href="#campus"><span>03</span>Campus</a></li>
+    <li><a href="#news"><span>04</span>News</a></li>
+    <li><a href="#admissions"><span>05</span>Admissions</a></li>
+  </ol>
+  <div class="foot mono"><span>principal@msec.edu.in</span><span>044-2480 1636</span><span>TNEA Code 1309</span></div>
+</nav>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-media" data-speed="-0.18">
+      <div class="media" data-tex="7" role="img" aria-label="Campus photo placeholder: an arched facade at dusk">
+        <span class="tag">Kodambakkam campus</span><span class="tag r">Chennai</span>
+      </div>
+    </div>
+    <h1 aria-label="Engineering minds since 2001.">
+      <span class="ln" data-speed="0.06" aria-hidden="true">Engineering</span>
+      <span class="ln" data-speed="0.12" aria-hidden="true">minds since</span>
+      <span class="ln it" data-speed="0.2" aria-hidden="true">2001.</span>
+    </h1>
+    <div class="grid hero-foot">
+      <p class="lede fade"><b>Meenakshi Sundararajan Engineering College</b>: an autonomous institution in the heart of Chennai, affiliated to Anna University and approved by AICTE.</p>
+      <div class="col fade"><span class="mono">Managed by</span><br><span class="mono" style="color:var(--ink)">IIET Society</span></div>
+      <div class="col fade"><span class="mono">Admissions</span><br><span class="mono" style="color:var(--accent)">2026 open · TNEA 1309</span></div>
+      <div class="scroll fade"><span class="mono">Scroll to explore</span><span class="bar"></span></div>
+    </div>
+  </section>
+
+  <!-- STATEMENT -->
+  <section class="statement" id="about">
+    <div class="grid">
+      <span class="mono">(About the college)</span>
+      <p class="reveal-words">Part of the KRS Group of Institutions, whose roots go back to the Indian Institute of Technical Education in 1947. Founded by Prof. K. R. Sundararajan, MSEC began in 2001 with three branches and has grown into a campus for seven, built on one idea: <em>engineering</em> is learned by building.</p>
+      <div class="sig fade"><div><span class="mono">Founder</span><br><span style="font-size:14px">Prof. K. R. Sundararajan</span></div><div><span class="mono">Recognition</span><br><span style="font-size:14px">AICTE · Anna University · NAAC · NBA (eligible programmes)</span></div></div>
+    </div>
+    <div class="grid stats">
+      <div class="fade"><span class="big-n">2001</span><span class="mono">Year founded</span></div>
+      <div class="fade"><span class="big-n">07</span><span class="mono">UG branches</span></div>
+      <div class="fade"><span class="big-n">660</span><span class="mono">Seats for 2026</span></div>
+      <div class="fade"><span class="big-n">1947</span><span class="mono">KRS Group legacy</span></div>
+    </div>
+  </section>
+
+  <!-- FEATURED -->
+  <section class="featured" id="programmes">
+    <div class="label-row"><span class="mono">Programme — 01/07 · Newest department</span><span class="mono">B.Tech · 4 years</span></div>
+    <h2 aria-label="Artificial Intelligence and Data Science">
+      <span class="ln" data-speed="0.05" aria-hidden="true">AI &amp; Data</span>
+      <span class="ln it" data-speed="-0.05" aria-hidden="true">Science</span>
+    </h2>
+    <div class="wrap">
+      <a href="#programmes" class="card" data-cursor="Explore">
+        <div class="media" data-tex="0" role="img" aria-label="Abstract artwork: a neural network constellation">
+          <span class="tag">Dept. of AI &amp; DS</span><span class="tag r">B.Tech</span>
+        </div>
+      </a>
+    </div>
+    <div class="grid info">
+      <div class="fade"><span class="mono k">Degree</span><span class="v">B.Tech</span></div>
+      <div class="fade"><span class="mono k">Duration</span><span class="v">4 years</span></div>
+      <div class="fade"><span class="mono k">Admission</span><span class="v">TNEA · Code 1309</span></div>
+      <p class="desc fade">Machine learning, statistics and large-scale data systems, taught through labs and projects from the first year. Graduates are prepared to build intelligent systems, not just use them.</p>
+      <div class="go fade"><a class="link" href="#programmes">Department page <span class="arr">→</span></a></div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true"><div class="track">
+    <span>Learn</span><span class="f">build</span><span>Learn</span><span class="f">build</span><span>Learn</span><span class="f">build</span><span>Learn</span><span class="f">build</span>
+  </div></div>
+
+  <!-- PROGRAMMES GRID -->
+  <section class="work">
+    <div class="grid">
+      <a href="#programmes" class="card c1 fade" data-cursor="Explore">
+        <div class="media" data-tex="1" role="img" aria-label="Artwork for Computer Science: a field of code glyphs"><span class="tag">120 seats</span></div>
+        <div class="cap"><h3><span>Computer Science</span></h3><span class="arr">→</span></div>
+        <div class="row2"><span class="mono">B.E. CSE</span><span class="num">02 — Since 2001</span></div>
+      </a>
+      <a href="#programmes" class="card c2 fade" data-cursor="Explore">
+        <div class="media" data-tex="2" role="img" aria-label="Artwork for Electronics and Communication: oscilloscope waveforms"><span class="tag">120 seats</span></div>
+        <div class="cap"><h3><span>Electronics &amp; Comm.</span></h3><span class="arr">→</span></div>
+        <div class="row2"><span class="mono">B.E. ECE</span><span class="num">03 — Since 2001</span></div>
+      </a>
+      <a href="#programmes" class="card c3 fade" data-cursor="Explore">
+        <div class="media" data-tex="6" role="img" aria-label="Artwork for Information Technology: a network of nodes"><span class="tag">Networks · Systems</span></div>
+        <div class="cap"><h3><span>Information Technology</span></h3><span class="arr">→</span></div>
+        <div class="row2"><span class="mono">B.Tech IT</span><span class="num">04 — Since 2001</span></div>
+      </a>
+      <a href="#programmes" class="card c4 fade" data-cursor="Explore">
+        <div class="media" data-tex="3" role="img" aria-label="Artwork for Electrical and Electronics: a coil and arc of current"><span class="tag">Power · Control</span></div>
+        <div class="cap"><h3><span>Electrical &amp; Electronics</span></h3><span class="arr">→</span></div>
+        <div class="row2"><span class="mono">B.E. EEE</span><span class="num">05</span></div>
+      </a>
+      <a href="#programmes" class="card c5 fade" data-cursor="Explore">
+        <div class="media" data-tex="4" role="img" aria-label="Artwork for Mechanical Engineering: interlocking gears"><span class="tag">Design · Manufacturing</span></div>
+        <div class="cap"><h3><span>Mechanical</span></h3><span class="arr">→</span></div>
+        <div class="row2"><span class="mono">B.E. Mech</span><span class="num">06</span></div>
+      </a>
+      <a href="#programmes" class="card c6 fade" data-cursor="Explore">
+        <div class="media" data-tex="5" role="img" aria-label="Artwork for Civil Engineering: bridge arches over water"><span class="tag">Structures · Construction</span></div>
+        <div class="cap"><h3><span>Civil</span></h3><span class="arr">→</span></div>
+        <div class="row2"><span class="mono">B.E. Civil</span><span class="num">07</span></div>
+      </a>
+      <div class="more fade"><a class="link" href="#admissions">Seat matrix &amp; eligibility <span class="arr">→</span></a></div>
+    </div>
+  </section>
+
+  <!-- CAMPUS -->
+  <section class="services" id="campus">
+    <div class="label-row"><span class="mono">(Campus life)</span><span class="mono">Kodambakkam, Chennai</span></div>
+    <div class="grid"><h2 class="intro serif fade">A city campus, <span class="it">built for</span><br>making things.</h2></div>
+    <div class="svc" data-cursor="Tour"><div class="grid"><span class="mono n">01</span><h4>Laboratories</h4><p>Department labs for computing, electronics, machines, structures and data. Open for projects beyond the syllabus.</p><span class="mono tags">Hands-on · Projects</span></div></div>
+    <div class="svc" data-cursor="Tour"><div class="grid"><span class="mono n">02</span><h4>Library</h4><p>A central library with print collections, journals and digital resources for every department.</p><span class="mono tags">Books · E-journals</span></div></div>
+    <div class="svc" data-cursor="Tour"><div class="grid"><span class="mono n">03</span><h4>Sports &amp; <em>Auditorium</em></h4><p>Sports facilities and an auditorium for symposia, cultural events and guest lectures.</p><span class="mono tags">Sports · Culture</span></div></div>
+    <div class="svc" data-cursor="Tour"><div class="grid"><span class="mono n">04</span><h4>Hostel &amp; Transport</h4><p>Residential options and college transport connecting students across Chennai.</p><span class="mono tags">Hostel · Buses</span></div></div>
+  </section>
+
+  <!-- PLACEMENTS -->
+  <section class="clients" id="placements">
+    <div class="label-row"><span class="mono">(Placements &amp; recruiters)</span><span class="mono">Training &amp; Placement Cell</span></div>
+    <div class="logos">
+      <div class="l1">Recruiter</div><div class="l2">RECRUITER</div><div class="l3">recruiter</div><div class="l4">Recruiter</div><div class="l5">RECRUITER</div>
+      <div class="l3">recruiter</div><div class="l1">Recruiter</div><div class="l5">RECRUITER</div><div class="l2">RECRUITER</div><div class="l4">Recruiter</div>
+    </div>
+    <p class="mono note">Placeholder: replace with the placement cell’s confirmed recruiter logos and figures.</p>
+    <div class="grid quote">
+      <blockquote class="fade">Placeholder for a real alumni or student quote about their time at MSEC and where it took them.</blockquote>
+      <div class="who fade"><span class="mono" style="color:var(--ink)">Alumni name</span><span class="mono">Batch · Department · Company</span></div>
+    </div>
+  </section>
+
+  <!-- NEWS -->
+  <section class="journal" id="news">
+    <div class="label-row"><span class="mono">(News &amp; events)</span><span class="mono">Sample entries, replace with live updates</span></div>
+    <a href="#admissions" class="post" data-cursor="Read"><div class="grid"><span class="mono d">2026</span><h5>Admissions 2026 open: TNEA counselling code 1309</h5><span class="mono c">Admissions</span><span class="mono t">Notice</span></div></a>
+    <a href="#news" class="post" data-cursor="Read"><div class="grid"><span class="mono d">Date</span><h5>National-level technical symposium (sample event)</h5><span class="mono c">Event</span><span class="mono t">Campus</span></div></a>
+    <a href="#news" class="post" data-cursor="Read"><div class="grid"><span class="mono d">Date</span><h5>Campus recruitment drive results (sample notice)</h5><span class="mono c">Placements</span><span class="mono t">Notice</span></div></a>
+  </section>
+
+  <!-- ADMISSIONS / CONTACT -->
+  <section class="contact" id="admissions">
+    <div class="label-row" style="border-top:0;padding-top:0"><span class="mono">(Admissions 2026)</span><span class="mono">Through TNEA · Anna University guidelines</span></div>
+    <h2 class="big" aria-label="Begin here.">
+      <span class="ln" data-speed="0.04" aria-hidden="true">Begin your</span>
+      <span class="ln" data-speed="-0.06" aria-hidden="true">story here.</span>
+    </h2>
+    <div class="grid">
+      <a class="mail" href="mailto:principal@msec.edu.in">principal@msec.edu.in <span class="arr">→</span></a>
+      <div class="addr"><span class="mono">Address</span><p>363, Arcot Road, Kodambakkam<br>Chennai, Tamil Nadu 600024</p></div>
+      <div class="addr2"><span class="mono">Phone · TNEA</span><p>044-2480 1636<br>Counselling code 1309</p></div>
+    </div>
+    <footer>
+      <span class="mono">© 2026 Meenakshi Sundararajan Engineering College</span>
+      <span class="mono">KRS Group of Institutions · IIET Society</span>
+      <div class="soc"><a href="#top">Mandatory disclosure</a><a href="#top">NIRF</a><a href="#top">Grievance</a></div>
+      <button class="totop mono" id="totop">Back to top ↑</button>
+    </footer>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(() => {
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (s, c=document) => c.querySelector(s), $$ = (s, c=document) => [...c.querySelectorAll(s)];
+const lerp = (a,b,t) => a+(b-a)*t;
+
+/* ---------- grain texture ---------- */
+const nc = document.createElement('canvas'); nc.width = nc.height = 160;
+{ const x = nc.getContext('2d'), d = x.createImageData(160,160);
+  for (let i=0;i<d.data.length;i+=4){const v=Math.random()*255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}
+  x.putImageData(d,0,0); }
+document.documentElement.style.setProperty('--noise', `url(${nc.toDataURL()})`);
+
+/* ---------- procedural artworks ---------- */
+let W=1000,H=1250;
+const SIZES=[[2000,1050],[1400,1050],[1000,1250],[1150,1150],[1000,1250],[1400,1000],[1000,1250],[1000,1300]];
+const rnd = (s => () => (s = (s*16807) % 2147483647) / 2147483647)(7);
+function grainOver(x){ x.save(); x.globalAlpha=.12; x.globalCompositeOperation='overlay'; x.fillStyle=x.createPattern(nc,'repeat'); x.fillRect(0,0,W,H); x.restore(); }
+function vignette(x,a=.55){ const g=x.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,H*.8); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,`rgba(0,0,0,${a})`); x.fillStyle=g; x.fillRect(0,0,W,H); }
+const arts = [
+  // 0 AI & DS — neural constellation
+  x => { let g=x.createLinearGradient(0,0,W,H); g.addColorStop(0,'#0a0f1c'); g.addColorStop(1,'#1c1430'); x.fillStyle=g; x.fillRect(0,0,W,H);
+    const layers=[5,9,12,9,4], pts=[];
+    layers.forEach((n,l)=>{ const lx=W*(.18+l*.16); for(let i=0;i<n;i++) pts.push([lx, H*(.5+(i-(n-1)/2)*(.7/Math.max(...layers))), l]); });
+    x.lineWidth=1; pts.forEach(a=>pts.forEach(b=>{ if(b[2]===a[2]+1 && rnd()<.55){ x.strokeStyle=`rgba(${rnd()<.15?'200,85,61':'237,230,216'},${.08+rnd()*.25})`; x.beginPath(); x.moveTo(a[0],a[1]); x.lineTo(b[0],b[1]); x.stroke(); } }));
+    pts.forEach(([px,py],i)=>{ g=x.createRadialGradient(px,py,0,px,py,40); g.addColorStop(0,'rgba(200,85,61,.5)'); g.addColorStop(1,'rgba(200,85,61,0)'); x.fillStyle=g; x.fillRect(px-40,py-40,80,80);
+      x.fillStyle=i%7?'#ede6d8':'#c8553d'; x.beginPath(); x.arc(px,py,i%7?6:10,0,7); x.fill(); });
+    for(let i=0;i<400;i++){ x.fillStyle=`rgba(237,230,216,${rnd()*.35})`; x.fillRect(rnd()*W,rnd()*H,1.5,1.5); }
+    x.fillStyle='rgba(237,230,216,.5)'; x.font='22px "JetBrains Mono", monospace'; x.fillText('y = σ(Wx + b)',W*.06,H*.92);
+    vignette(x,.5); },
+  // 1 CSE — code glyph field
+  x => { x.fillStyle='#0f1210'; x.fillRect(0,0,W,H);
+    const glyphs='{}[]()<>/=;01λ#*+&|'.split(''); x.font='26px "JetBrains Mono", monospace';
+    for(let r=0;r<H/34;r++) for(let c=0;c<W/22;c++){ const d=Math.hypot(c*22-W*.62,r*34-H*.48)/W; if(rnd()<.6-d*.4){ x.fillStyle=`rgba(${d<.18?'200,85,61':'237,230,216'},${Math.max(.05,.6-d)})`; x.fillText(glyphs[Math.floor(rnd()*glyphs.length)],c*22,r*34); } }
+    x.fillStyle='#ede6d8'; x.font='italic 360px "Instrument Serif", serif'; x.fillText('{ }',W*.08,H*.7);
+    vignette(x,.5); },
+  // 2 ECE — waveforms
+  x => { x.fillStyle='#071612'; x.fillRect(0,0,W,H);
+    x.strokeStyle='rgba(120,200,170,.12)'; x.lineWidth=1; for(let i=0;i<W;i+=50){x.beginPath();x.moveTo(i,0);x.lineTo(i,H);x.stroke()} for(let i=0;i<H;i+=50){x.beginPath();x.moveTo(0,i);x.lineTo(W,i);x.stroke()}
+    const waves=[[.3,'#ede6d8',.012,90],[.5,'#c8553d',.03,60],[.7,'#7fd1b0',.007,140]];
+    waves.forEach(([y,c,f,a],k)=>{ x.strokeStyle=c; x.lineWidth=4; x.shadowColor=c; x.shadowBlur=24; x.beginPath();
+      for(let i=0;i<=W;i+=4){ const v = k===1 ? (Math.sin(i*f)>0?1:-1)*a*.6 : Math.sin(i*f)*a*Math.exp(-(((i-W/2)/W)**2)*2); i?x.lineTo(i,H*y+v):x.moveTo(i,H*y+v);} x.stroke(); });
+    x.shadowBlur=0; x.fillStyle='rgba(237,230,216,.5)'; x.font='20px "JetBrains Mono", monospace'; x.fillText('CH1 2V/div   CH2 50mV/div',W*.06,H*.95);
+    vignette(x,.45); },
+  // 3 EEE — coil + arc
+  x => { let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#1a1408'); g.addColorStop(1,'#3b2a0c'); x.fillStyle=g; x.fillRect(0,0,W,H);
+    const cx=W*.5; for(let i=0;i<26;i++){ const y=H*.22+i*H*.022; x.strokeStyle=`rgba(214,150,70,${.5+.5*Math.sin(i*.4)})`; x.lineWidth=7; x.beginPath(); x.ellipse(cx,y,W*.22,H*.03,0,0,Math.PI); x.stroke(); }
+    x.fillStyle='#2b2318'; x.fillRect(cx-W*.04,H*.15,W*.08,H*.66);
+    x.save(); x.globalCompositeOperation='lighter'; x.strokeStyle='rgba(180,200,255,.9)'; x.shadowColor='#9fb4ff'; x.shadowBlur=40; x.lineWidth=3;
+    for(let k=0;k<3;k++){ let px=cx, py=H*.13; x.beginPath(); x.moveTo(px,py); while(py>0){ px+=(rnd()-.5)*90; py-=30+rnd()*30; x.lineTo(px,py);} x.stroke(); }
+    x.restore(); g=x.createRadialGradient(cx,H*.13,0,cx,H*.13,W*.4); g.addColorStop(0,'rgba(160,180,255,.5)'); g.addColorStop(1,'rgba(160,180,255,0)'); x.fillStyle=g; x.fillRect(0,0,W,H);
+    vignette(x,.5); },
+  // 4 Mech — gears
+  x => { x.fillStyle='#18191b'; x.fillRect(0,0,W,H);
+    const gear=(cx,cy,r,teeth,col,rot)=>{ x.fillStyle=col; x.beginPath(); for(let i=0;i<teeth*2;i++){ const a=rot+i*Math.PI/teeth, rr=i%2?r:r*1.12; x.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr);} x.closePath(); x.fill();
+      x.fillStyle='#18191b'; x.beginPath(); x.arc(cx,cy,r*.28,0,7); x.fill(); x.strokeStyle='rgba(0,0,0,.4)'; x.lineWidth=r*.08; x.beginPath(); x.arc(cx,cy,r*.7,0,7); x.stroke(); };
+    gear(W*.38,H*.45,W*.26,18,'#9a9690',0); gear(W*.78,H*.78,W*.17,12,'#c8553d',.2); gear(W*.8,H*.2,W*.12,10,'#5d5a55',.1);
+    g=x.createLinearGradient(0,0,W,H); g.addColorStop(0,'rgba(255,255,255,.12)'); g.addColorStop(1,'rgba(0,0,0,.3)'); x.fillStyle=g; x.fillRect(0,0,W,H);
+    vignette(x,.5); },
+  // 5 Civil — bridge arches
+  x => { let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#cdb79a'); g.addColorStop(.55,'#8a6f58'); g.addColorStop(.6,'#2a2420'); g.addColorStop(1,'#14110f'); x.fillStyle=g; x.fillRect(0,0,W,H);
+    const deck=H*.42, base=H*.6, n=4, span=W/n;
+    x.fillStyle='#2b2521'; x.fillRect(0,deck-24,W,24);
+    for(let i=0;i<n;i++){ const ax=i*span; x.beginPath(); x.moveTo(ax,base); x.lineTo(ax,deck); x.lineTo(ax+span,deck); x.lineTo(ax+span,base); x.lineTo(ax+span-span*.08,base); x.quadraticCurveTo(ax+span/2,deck-H*.02,ax+span*.08,base); x.closePath(); x.fill(); }
+    x.save(); x.globalAlpha=.35; x.scale(1,-1); x.translate(0,-base*2); for(let i=0;i<n;i++){ const ax=i*span; x.beginPath(); x.moveTo(ax,base); x.lineTo(ax,deck); x.lineTo(ax+span,deck); x.lineTo(ax+span,base); x.lineTo(ax+span-span*.08,base); x.quadraticCurveTo(ax+span/2,deck-H*.02,ax+span*.08,base); x.closePath(); x.fill(); } x.restore();
+    x.strokeStyle='rgba(237,230,216,.2)'; for(let i=0;i<30;i++){ const y=base+10+i*i*.5; x.beginPath(); x.moveTo(rnd()*W*.3,y); x.lineTo(W*.4+rnd()*W*.6,y); x.stroke(); }
+    vignette(x,.4); },
+  // 6 IT — network globe
+  x => { let g=x.createRadialGradient(W/2,H/2,0,W/2,H/2,H*.7); g.addColorStop(0,'#14202c'); g.addColorStop(1,'#06090d'); x.fillStyle=g; x.fillRect(0,0,W,H);
+    const cx=W/2, cy=H*.48, r=W*.36; x.strokeStyle='rgba(237,230,216,.25)'; x.lineWidth=1.5;
+    for(let i=1;i<8;i++){ x.beginPath(); x.ellipse(cx,cy,r*Math.sin(i*Math.PI/8),r,0,0,7); x.stroke(); x.beginPath(); x.ellipse(cx,cy,r,r*Math.sin(i*Math.PI/8)*.3+0,0,0,7); }
+    for(let i=-3;i<=3;i++){ const yy=cy+i*r/4, rr=Math.sqrt(r*r-((i*r/4)**2)); x.beginPath(); x.ellipse(cx,yy,rr,rr*.12,0,0,7); x.stroke(); }
+    const nodes=[...Array(18)].map(()=>{ const a=rnd()*7, b=(rnd()-.5)*2.6; return [cx+Math.cos(a)*r*Math.cos(b/2)*.95, cy+Math.sin(b/2)*r*.95]; });
+    x.strokeStyle='rgba(200,85,61,.7)'; x.lineWidth=2; for(let i=0;i<14;i++){ const a=nodes[i], b=nodes[(i*5+3)%18]; x.beginPath(); x.moveTo(a[0],a[1]); x.quadraticCurveTo((a[0]+b[0])/2,(a[1]+b[1])/2-120,b[0],b[1]); x.stroke(); }
+    nodes.forEach(([px,py])=>{ x.fillStyle='#ede6d8'; x.beginPath(); x.arc(px,py,5,0,7); x.fill(); });
+    vignette(x,.4); },
+  // 7 Hero — arched facade at dusk
+  x => { let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#1b1d3a'); g.addColorStop(.6,'#b0603e'); g.addColorStop(1,'#e2a66b'); x.fillStyle=g; x.fillRect(0,0,W,H);
+    const top=H*.3; x.fillStyle='#1a1512'; x.fillRect(0,top,W,H-top);
+    const cols=4, cw=W/cols;
+    for(let row=0;row<3;row++) for(let c=0;c<cols;c++){ const ax=c*cw+cw*.18, aw=cw*.64, ay=top+H*.06+row*H*.22, ah=H*.16;
+      g=x.createLinearGradient(0,ay,0,ay+ah); g.addColorStop(0,'#f2c58a'); g.addColorStop(1,'#d07d47'); x.fillStyle=(row+c)%3?g:'#3a2a20';
+      x.beginPath(); x.moveTo(ax,ay+ah); x.lineTo(ax,ay+aw/2); x.arc(ax+aw/2,ay+aw/2,aw/2,Math.PI,0); x.lineTo(ax+aw,ay+ah); x.closePath(); x.fill(); }
+    x.fillStyle='rgba(0,0,0,.35)'; x.fillRect(0,top,W,8);
+    vignette(x,.5); },
+];
+const textures = arts.map((fn,i) => { [W,H]=SIZES[i]; const c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d'); fn(x); grainOver(x); return c; });
+
+/* ---------- WebGL liquid distortion ---------- */
+const canvas = $('#gl');
+const gl = canvas.getContext('webgl', {alpha:true, antialias:false, premultipliedAlpha:true});
+const medias = $$('.media').map(el => ({el, tex:+el.dataset.tex, hover:0, th:0, mx:.5, my:.5, tmx:.5, tmy:.5, reveal: reduce?1:0, tr: reduce?1:0, glTex:null}));
+let glOk = !!gl;
+const VS = `attribute vec2 p; varying vec2 vUv; void main(){ vUv=p*.5+.5; gl_Position=vec4(p,0.,1.); }`;
+const FS = `precision highp float;
+uniform sampler2D uTex; uniform vec2 uSize, uImg, uMouse; uniform float uHover, uTime, uReveal, uPar, uVel;
+varying vec2 vUv;
+void main(){
+  vec2 uv = vUv;
+  float edge = uReveal*1.15;
+  if(uv.y > edge) discard;
+  float ra = uSize.x/uSize.y, ia = uImg.x/uImg.y;
+  vec2 s = ra > ia ? vec2(1., ia/ra) : vec2(ra/ia, 1.);
+  vec2 t = (uv - .5) * s;
+  float zoom = mix(.62, .86, uReveal) - .05*uHover;
+  t *= zoom;
+  t.y += uPar * .06;
+  vec2 d = uv - uMouse; d.x *= ra;
+  float dist = length(d);
+  float wave = sin(dist*26. - uTime*3.2) * exp(-dist*4.5) * uHover;
+  vec2 dir = d / (dist + 1e-4);
+  t += vec2(dir.x/ra, dir.y) * wave * .016;
+  t -= vec2(d.x/ra, d.y) * exp(-dist*dist*7.) * .11 * uHover;
+  t.x += sin(uv.y*10. + uTime) * .004 * abs(uVel);
+  t += .5;
+  float sh = .006*uHover + min(abs(uVel)*.003,.01);
+  vec3 c;
+  c.r = texture2D(uTex, t + vec2(sh, 0.)).r;
+  c.g = texture2D(uTex, t).g;
+  c.b = texture2D(uTex, t - vec2(sh, 0.)).b;
+  float lip = smoothstep(edge-.02, edge, uv.y) * step(uReveal, .999);
+  c = mix(c, vec3(.93,.9,.85), lip);
+  gl_FragColor = vec4(c, 1.);
+}`;
+let prog, U = {}, glTex = [];
+if (glOk) {
+  try {
+    const sh = (t,src) => { const s=gl.createShader(t); gl.shaderSource(s,src); gl.compileShader(s); if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s); return s; };
+    prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER,VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER,FS)); gl.linkProgram(prog);
+    if(!gl.getProgramParameter(prog,gl.LINK_STATUS)) throw 'link';
+    gl.useProgram(prog);
+    const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+    const loc=gl.getAttribLocation(prog,'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+    ['uTex','uSize','uImg','uMouse','uHover','uTime','uReveal','uPar','uVel'].forEach(n=>U[n]=gl.getUniformLocation(prog,n));
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    glTex = textures.map(c => { const t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE); return t; });
+    medias.forEach(m => m.glTex = glTex[m.tex]);
+    gl.enable(gl.SCISSOR_TEST);
+  } catch(e){ console.warn('WebGL disabled:', e); glOk = false; }
+}
+if (!glOk) medias.forEach(m => m.el.style.backgroundImage = `url(${textures[m.tex].toDataURL('image/jpeg',.85)})`);
+
+medias.forEach(m => {
+  const host = m.el.closest('.card') || m.el;
+  host.addEventListener('pointerenter', () => m.th = 1);
+  host.addEventListener('pointerleave', () => m.th = 0);
+  m.el.addEventListener('pointermove', e => { const r=m.el.getBoundingClientRect(); m.tmx=(e.clientX-r.left)/r.width; m.tmy=1-(e.clientY-r.top)/r.height; });
+});
+const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ const m=medias.find(m=>m.el===e.target); if(m) m.tr=1; else e.target.classList.add('in'); io.unobserve(e.target);} }), {threshold:.18});
+medias.forEach(m => io.observe(m.el));
+$$('.fade').forEach(el => io.observe(el));
+
+let dpr = 1;
+function resize(){ dpr=Math.min(devicePixelRatio||1, 2); canvas.width=innerWidth*dpr; canvas.height=innerHeight*dpr; }
+resize(); addEventListener('resize', resize);
+
+/* ---------- kinetic type: split chars ---------- */
+$$('.hero h1 .ln').forEach(ln => { let i=0; ln.innerHTML = ln.textContent.split('').map(c => c===' ' ? ' ' : `<span class="ch" style="transition-delay:${(.15+ (i++)*.035 + [...ln.parentNode.children].indexOf(ln)*.12).toFixed(3)}s">${c}</span>`).join(''); });
+// words for scroll reveal
+const rw = $('.reveal-words');
+rw.innerHTML = rw.innerHTML.replace(/(<em>.*?<\/em>)|([^\s<>]+)/g, (m) => `<span class="w">${m}</span>`);
+const words = $$('.w', rw);
+if (reduce) words.forEach(w => w.classList.add('on'));
+
+/* ---------- smooth scroll ---------- */
+let lenis = null;
+if (!reduce && window.Lenis) { lenis = new Lenis({ lerp:.085, smoothWheel:true, wheelMultiplier:.95 }); }
+const scrollTo = (t) => lenis ? lenis.scrollTo(t, {duration:1.6, offset: t===0?0:-20}) : (t===0 ? scrollTo0() : document.querySelector(t)?.scrollIntoView({behavior: reduce?'auto':'smooth'}));
+const scrollTo0 = () => window.scrollTo({top:0, behavior: reduce?'auto':'smooth'});
+
+/* ---------- menu ---------- */
+const btn = $('.menu-btn');
+const setMenu = (open) => { document.body.classList.toggle('menu-open', open); btn.setAttribute('aria-expanded', open); btn.firstChild.textContent = open ? 'Close ' : 'Menu '; if(lenis) open?lenis.stop():lenis.start(); };
+btn.addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+addEventListener('keydown', e => { if(e.key==='Escape') setMenu(false); });
+$$('a[href^="#"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); setMenu(false); const h=a.getAttribute('href'); scrollTo(h==='#top'?0:h);
+  $$('.nav ul a').forEach(n => n.classList.toggle('cur', n.getAttribute('href')===h)); }));
+$('#totop').addEventListener('click', () => scrollTo(0));
+
+/* ---------- clock ---------- */
+const clock = $('#clock');
+const tick = () => { try { clock.textContent = 'Chennai ' + new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'}).format(new Date()); } catch(e){} };
+tick(); setInterval(tick, 20000);
+
+/* ---------- cursor ---------- */
+const cur = $('.cursor'), curLabel = $('b', cur);
+let cx=innerWidth/2, cy=innerHeight/2, tx=cx, ty=cy;
+addEventListener('pointermove', e => { tx=e.clientX; ty=e.clientY; cur.classList.add('on'); });
+document.documentElement.addEventListener('pointerleave', () => cur.classList.remove('on'));
+$$('[data-cursor]').forEach(el => { el.addEventListener('pointerenter', () => { curLabel.textContent = el.dataset.cursor; cur.classList.add('big'); }); el.addEventListener('pointerleave', () => cur.classList.remove('big')); });
+
+/* ---------- loop ---------- */
+const speeds = $$('[data-speed]');
+const marquee = $('.marquee .track');
+let mx = 0, lastY = scrollY, vel = 0, start = performance.now();
+function frame(now){
+  if (lenis) lenis.raf(now);
+  const y = scrollY, vh = innerHeight;
+  const rawV = lenis ? lenis.velocity : (y - lastY); lastY = y;
+  vel = lerp(vel, Math.max(-60, Math.min(60, rawV)), .12);
+
+  // cursor
+  cx = lerp(cx, tx, .2); cy = lerp(cy, ty, .2);
+  cur.style.transform = `translate3d(${cx}px,${cy}px,0)`;
+
+  if (!reduce) {
+    // parallax (measure parent to avoid feedback)
+    speeds.forEach(el => { const r = el.parentElement.getBoundingClientRect(); const c = r.top + r.height/2 - vh/2; el.style.transform = `translate3d(0,${(-c*+el.dataset.speed).toFixed(2)}px,0)`; });
+    // marquee: drift + scroll velocity
+    mx -= .5 + Math.abs(vel)*.35;
+    const half = marquee.scrollWidth/2; if (-mx > half) mx += half;
+    marquee.style.transform = `translate3d(${mx}px,0,0) skewX(${(-vel*.25).toFixed(2)}deg)`;
+    // word reveal
+    const r = rw.getBoundingClientRect(); const p = (vh*.82 - r.top) / (r.height + vh*.25);
+    const n = Math.floor(Math.max(0, Math.min(1, p)) * words.length * 1.05);
+    words.forEach((w,i) => w.classList.toggle('on', i < n));
+  }
+
+  // GL
+  if (glOk) {
+    gl.viewport(0,0,canvas.width,canvas.height); gl.scissor(0,0,canvas.width,canvas.height);
+    gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
+    const t = (now - start)/1000;
+    gl.uniform1f(U.uTime, t); gl.uniform1f(U.uVel, vel*.05);     for (const m of medias) {
+      const r = m.el.getBoundingClientRect();
+      m.hover = lerp(m.hover, m.th, .06);
+      m.mx = lerp(m.mx, m.tmx, .1); m.my = lerp(m.my, m.tmy, .1);
+      m.reveal = lerp(m.reveal, m.tr, .028); if (m.tr===1 && m.reveal>.999) m.reveal=1;
+      if (r.bottom < 0 || r.top > vh || r.width === 0 || m.reveal < .001) continue;
+      const x = Math.round(r.left*dpr), yb = Math.round((vh - r.bottom)*dpr), w = Math.round(r.width*dpr), h = Math.round(r.height*dpr);
+      gl.viewport(x, yb, w, h); gl.scissor(Math.max(0,x), Math.max(0,yb), w, h);
+      gl.bindTexture(gl.TEXTURE_2D, m.glTex); gl.uniform2f(U.uImg, SIZES[m.tex][0], SIZES[m.tex][1]);
+      gl.uniform2f(U.uSize, r.width, r.height);
+      gl.uniform2f(U.uMouse, m.mx, m.my);
+      gl.uniform1f(U.uHover, m.hover);
+      gl.uniform1f(U.uReveal, m.reveal);
+      gl.uniform1f(U.uPar, ((r.top + r.height/2) - vh/2) / vh);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+const go = () => {
+  // redraw artworks now that display fonts are available, then re-upload
+  arts.forEach((fn,i) => { [W,H]=SIZES[i]; const x=textures[i].getContext('2d'); x.clearRect(0,0,W,H); fn(x); grainOver(x);
+    if (glOk) { gl.bindTexture(gl.TEXTURE_2D, glTex[i]); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,textures[i]); } });
+  requestAnimationFrame(() => document.body.classList.add('loaded'));
+};
+(document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise(r=>setTimeout(r,1200))]) : Promise.resolve()).then(go);
+})();
+</script>
+</body>
+</html>
